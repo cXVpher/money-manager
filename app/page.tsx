@@ -79,16 +79,6 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Tips Card */}
-            <div className="card bg-indigo-50 border border-indigo-100 shadow-sm">
-              <div className="card-body p-5">
-                <h3 className="font-bold text-indigo-800">Tips Hemat 💡</h3>
-                <p className="text-sm text-indigo-600 mt-1">
-                  Jangan lupa catat pengeluaran kecil. Hal kecil bisa menjadi besar!
-                </p>
-              </div>
-            </div>
-
           </div>
 
           {/* KOLOM KANAN: Tabel Riwayat */}
