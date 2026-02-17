@@ -1,63 +1,107 @@
-import Image from "next/image";
+import { getTransactions } from "@/lib/api";
+import DashboardStats from "@/components/DashboardStats";
+import AddTransaction from "@/components/AddTransaction";
+import TransactionList from "@/components/TransactionList";
+import CategoryManager from "@/components/CategoryManager";
 
-export default function Home() {
+// Agar data selalu fresh (tidak dicache server)
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const transactions = await getTransactions();
+
+  const summary = {
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0
+  };
+
+  if (Array.isArray(transactions)) {
+    transactions.forEach((t: any) => {
+      const amount = Number(t.amount) || 0;
+      if (t.type === 'income') {
+        summary.totalIncome += amount;
+      } else {
+        summary.totalExpense += amount;
+      }
+    });
+  }
+  summary.balance = summary.totalIncome - summary.totalExpense;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen pb-10 bg-gray-50">
+      
+      {/* 1. NAVBAR */}
+      <div className="navbar bg-indigo-600 text-white shadow-lg mb-8">
+        <div className="container mx-auto px-4">
+          <div className="flex-1">
+            <a className="btn btn-ghost text-xl font-bold tracking-wider">
+              💸 MoneyManager
+            </a>
+          </div>
+          <div className="flex-none">
+            <div className="avatar placeholder">
+              <div className="bg-indigo-400 text-white rounded-full w-10">
+                <span className="text-xs">U</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {/* 2. KONTEN UTAMA */}
+      <main className="container mx-auto px-4">
+        
+        {/* Judul */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard Keuangan</h1>
+          <p className="text-gray-500 text-sm">Pantau arus kas Anda hari ini.</p>
+        </div>
+
+        {/* Statistik Row (Data dari hitungan manual) */}
+        <DashboardStats summary={summary} transactions={Array.isArray(transactions) ? transactions : []} />
+
+        {/* Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* KOLOM KIRI: Menu Aksi */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Card Aksi Cepat */}
+            <div className="card bg-white shadow-lg border border-gray-100">
+              <div className="card-body">
+                <h2 className="card-title text-gray-700 text-lg mb-4">Aksi Cepat</h2>
+                <div className="flex flex-col gap-4">
+                  <AddTransaction />
+                  <div className="divider my-0"></div>
+                  <CategoryManager />
+                </div>
+              </div>
+            </div>
+
+            {/* Tips Card */}
+            <div className="card bg-indigo-50 border border-indigo-100 shadow-sm">
+              <div className="card-body p-5">
+                <h3 className="font-bold text-indigo-800">Tips Hemat 💡</h3>
+                <p className="text-sm text-indigo-600 mt-1">
+                  Jangan lupa catat pengeluaran kecil. Hal kecil bisa menjadi besar!
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* KOLOM KANAN: Tabel Riwayat */}
+          <div className="lg:col-span-2">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-700">Riwayat Transaksi</h2>
+              <button className="btn btn-xs btn-ghost text-indigo-600">Lihat Semua</button>
+            </div>
+            
+            {/* Kirim data transaksi ke tabel */}
+            <TransactionList transactions={Array.isArray(transactions) ? transactions : []} />
+          </div>
+
         </div>
       </main>
     </div>
