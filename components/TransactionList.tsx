@@ -15,10 +15,9 @@ export default function TransactionList({ transactions }: { transactions: Transa
 
   return (
     <div className="card bg-white shadow-xl">
-      <div className="card-body p-0"> {/* p-0 agar tabel memenuhi kartu */}
+      <div className="card-body p-0">
         <div className="overflow-x-auto rounded-xl">
           <table className="table table-zebra w-full">
-            {/* Header Tabel */}
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
               <tr>
                 <th className="py-4">Tanggal</th>

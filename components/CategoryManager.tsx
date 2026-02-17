@@ -8,9 +8,8 @@ export default function CategoryManager() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false); // Tambah status loading
+  const [loading, setLoading] = useState(false);
   
-  // Form State
   const [name, setName] = useState("");
   const [type, setType] = useState("expense");
   const [color, setColor] = useState("#EF4444"); 
@@ -26,13 +25,11 @@ export default function CategoryManager() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Mulai loading
+    setLoading(true); 
     
     try {
-      // Kirim data ke API
       await createCategory(name, type, color);
       
-      // Jika berhasil:
       setName("");
       setIsOpen(false);
       fetchCats(); 
@@ -40,15 +37,12 @@ export default function CategoryManager() {
       alert("✅ Sukses! Kategori berhasil dibuat.");
       
     } catch (error: any) {
-      // --- DETEKTIF ERROR ---
-      // Kita ambil pesan error asli dari Server (Backend)
       const serverMessage = error.response?.data?.message || JSON.stringify(error.response?.data);
       console.error("Detail Error:", error.response);
       
-      // Tampilkan ke user
       alert(`❌ Gagal: ${serverMessage || "Cek Console Browser untuk detail."}`);
     } finally {
-      setLoading(false); // Selesai loading
+      setLoading(false);
     }
   };
 
@@ -69,7 +63,6 @@ export default function CategoryManager() {
         </button>
       </div>
 
-      {/* List Kategori */}
       <div className="flex gap-2 flex-wrap mb-4">
         {categories.length === 0 ? (
           <span className="text-xs text-gray-400 italic">Belum ada kategori. Klik '+ Atur Kategori'</span>
@@ -86,7 +79,6 @@ export default function CategoryManager() {
         )}
       </div>
 
-      {/* Modal Tambah Kategori */}
       {isOpen && (
         <div className="modal modal-open bg-black/50 z-50">
           <div className="modal-box">
@@ -94,7 +86,6 @@ export default function CategoryManager() {
             
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
               
-              {/* Nama Kategori */}
               <div className="form-control">
                 <label className="label-text mb-1">Nama Kategori</label>
                 <input 
@@ -107,7 +98,6 @@ export default function CategoryManager() {
                 />
               </div>
 
-              {/* Tipe (Pemasukan/Pengeluaran) */}
               <div className="form-control">
                 <label className="label-text mb-1">Jenis</label>
                 <select 
@@ -120,7 +110,6 @@ export default function CategoryManager() {
                 </select>
               </div>
 
-              {/* Warna Label */}
               <div className="form-control">
                 <label className="label-text mb-1">Warna Label</label>
                 <div className="flex gap-3 items-center border p-2 rounded-lg">

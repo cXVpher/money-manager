@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { DashboardSummary, Transaction } from "@/lib/api";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2'; // Ganti Pie jadi Doughnut
+import { Doughnut } from 'react-chartjs-2';
 
-// Registrasi komponen Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface Props {
@@ -17,22 +16,20 @@ export default function DashboardStats({ summary, transactions }: Props) {
   const safeSummary = summary || { totalIncome: 0, totalExpense: 0, balance: 0 };
   const [activeChart, setActiveChart] = useState<'income' | 'expense' | 'balance' | null>(null);
 
-  // Helper untuk format Rupiah
   const formatIDR = (num: number) => "Rp " + num.toLocaleString("id-ID");
 
-  // --- LOGIKA DATA CHART ---
   const getChartData = () => {
     let labels: string[] = [];
     let dataValues: number[] = [];
     let bgColors: string[] = [];
     let title = "";
-    let totalSum = 0; // Untuk hitung persentase
+    let totalSum = 0;
 
     if (activeChart === 'balance') {
       title = "Perbandingan Arus Kas";
       labels = ['Pemasukan', 'Pengeluaran'];
       dataValues = [safeSummary.totalIncome, safeSummary.totalExpense];
-      bgColors = ['#10B981', '#F43F5E']; // Emerald & Rose
+      bgColors = ['#10B981', '#F43F5E']; 
       totalSum = safeSummary.totalIncome + safeSummary.totalExpense;
 
     } else {
@@ -42,9 +39,8 @@ export default function DashboardStats({ summary, transactions }: Props) {
       const categoryColors: Record<string, string> = {};
 
       filtered.forEach(t => {
-        // Gunakan nama kategori, jika tidak ada (karena kategori dihapus) pakai "Lainnya"
         const catName = t.category?.name || "Lainnya (Kategori Dihapus)";
-        const catColor = t.category?.color || "#9CA3AF"; // Abu-abu default
+        const catColor = t.category?.color || "#9CA3AF";
         
         groupedData[catName] = (groupedData[catName] || 0) + Number(t.amount);
         categoryColors[catName] = catColor;
@@ -56,7 +52,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
       totalSum = dataValues.reduce((a, b) => a + b, 0);
     }
 
-    // Handle Data Kosong
     if (dataValues.length === 0 || totalSum === 0) {
       return {
         title, isEmpty: true, totalSum: 0,
@@ -65,14 +60,12 @@ export default function DashboardStats({ summary, transactions }: Props) {
       };
     }
 
-    // Siapkan data detail untuk legend kustom
     const details = labels.map((label, index) => ({
       label,
       value: dataValues[index],
       color: bgColors[index],
       percentage: ((dataValues[index] / totalSum) * 100).toFixed(1) + "%"
     }));
-    // Urutkan dari yang terbesar
     details.sort((a, b) => b.value - a.value);
 
     return {
@@ -83,9 +76,9 @@ export default function DashboardStats({ summary, transactions }: Props) {
         datasets: [{
           data: dataValues,
           backgroundColor: bgColors,
-          borderColor: '#ffffff', // Border putih agar terlihat terpotong
+          borderColor: '#ffffff', 
           borderWidth: 3,
-          hoverOffset: 10 // Efek membesar saat di-hover
+          hoverOffset: 10 
         }],
       }
     };
@@ -93,13 +86,12 @@ export default function DashboardStats({ summary, transactions }: Props) {
 
   const chartConfig = activeChart ? getChartData() : null;
 
-  // --- OPSI CHART (Config Tampilan) ---
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '65%', // Membuat lubang donut lebih besar
+    cutout: '65%', 
     plugins: {
-      legend: { display: false }, // Matikan legend bawaan yang jelek
+      legend: { display: false }, 
       tooltip: {
         backgroundColor: 'rgba(0,0,0,0.8)',
         bodyFont: { size: 14 },
@@ -108,7 +100,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
             let label = context.label || '';
             if (label) label += ': ';
             if (context.parsed !== null) {
-              // Format tooltip jadi Rupiah
               label += formatIDR(context.parsed);
             }
             return label;
@@ -120,7 +111,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
 
   return (
     <>
-      {/* --- KARTU STATISTIK (TAMPILAN DEPAN) --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <CardStat 
           title="Pemasukan" value={safeSummary.totalIncome} color="emerald" icon="💰" 
@@ -136,13 +126,10 @@ export default function DashboardStats({ summary, transactions }: Props) {
         />
       </div>
 
-      {/* --- POPUP MODAL CHART PREMIUM --- */}
       {activeChart && chartConfig && (
         <div className="modal modal-open bg-black/70 backdrop-blur-sm z-[999] transition-opacity">
-          {/* Gunakan max-w-4xl agar modal lebih lebar */}
           <div className="modal-box max-w-4xl p-0 overflow-hidden relative bg-white rounded-2xl shadow-2xl">
             
-            {/* Header Modal */}
             <div className={`p-4 flex justify-between items-center ${activeChart === 'income' ? 'bg-emerald-50' : activeChart === 'expense' ? 'bg-rose-50' : 'bg-indigo-50'}`}>
               <h3 className="font-bold text-xl flex items-center gap-2">
                 <span className="text-2xl">{activeChart === 'income' ? '💰' : activeChart === 'expense' ? '💸' : '📊'}</span>
@@ -151,13 +138,10 @@ export default function DashboardStats({ summary, transactions }: Props) {
               <button onClick={() => setActiveChart(null)} className="btn btn-sm btn-circle btn-ghost text-gray-500 hover:bg-black/10">✕</button>
             </div>
             
-            {/* Body Modal (Grid 2 Kolom) */}
             <div className="p-6 grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
               
-              {/* KOLOM KIRI: CHART */}
               <div className="md:col-span-3 h-72 relative flex justify-center items-center">
                 <Doughnut data={chartConfig.data} options={options} />
-                {/* Teks di tengah Donut */}
                 {!chartConfig.isEmpty && (
                    <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
                      <span className="text-sm text-gray-400 font-medium">Total</span>
@@ -166,7 +150,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
                 )}
               </div>
 
-              {/* KOLOM KANAN: CUSTOM LEGEND (DETAIL DATA) */}
               <div className="md:col-span-2 flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                 {chartConfig.isEmpty ? (
                    <div className="text-center text-gray-400 italic py-10">Belum ada data transaksi untuk ditampilkan.</div>
@@ -190,7 +173,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
 
             </div>
             
-            {/* Footer Actions */}
             <div className="p-4 bg-gray-50 border-t flex justify-end">
                  <button className="btn px-6" onClick={() => setActiveChart(null)}>Tutup Laporan</button>
             </div>
@@ -202,7 +184,6 @@ export default function DashboardStats({ summary, transactions }: Props) {
   );
 }
 
-// --- KOMPONEN KECIL UNTUK KARTU DEPAN (Supaya rapi) ---
 function CardStat({ title, value, color, icon, onClick, isBalance }: any) {
   const colors = {
     emerald: { border: 'border-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-100' },

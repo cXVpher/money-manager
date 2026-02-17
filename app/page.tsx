@@ -4,7 +4,6 @@ import AddTransaction from "@/components/AddTransaction";
 import TransactionList from "@/components/TransactionList";
 import CategoryManager from "@/components/CategoryManager";
 
-// Agar data selalu fresh (tidak dicache server)
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
@@ -31,7 +30,6 @@ export default async function Home() {
   return (
     <div className="min-h-screen pb-10 bg-gray-50">
       
-      {/* 1. NAVBAR */}
       <div className="navbar bg-indigo-600 text-white shadow-lg mb-8">
         <div className="container mx-auto px-4">
           <div className="flex-1">
@@ -49,25 +47,19 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* 2. KONTEN UTAMA */}
       <main className="container mx-auto px-4">
-        
-        {/* Judul */}
+
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Dashboard Keuangan</h1>
           <p className="text-gray-500 text-sm">Pantau arus kas Anda hari ini.</p>
         </div>
 
-        {/* Statistik Row (Data dari hitungan manual) */}
         <DashboardStats summary={summary} transactions={Array.isArray(transactions) ? transactions : []} />
 
-        {/* Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* KOLOM KIRI: Menu Aksi */}
+
           <div className="lg:col-span-1 space-y-6">
-            
-            {/* Card Aksi Cepat */}
+
             <div className="card bg-white shadow-lg border border-gray-100">
               <div className="card-body">
                 <h2 className="card-title text-gray-700 text-lg mb-4">Aksi Cepat</h2>
@@ -81,14 +73,12 @@ export default async function Home() {
 
           </div>
 
-          {/* KOLOM KANAN: Tabel Riwayat */}
           <div className="lg:col-span-2">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-gray-700">Riwayat Transaksi</h2>
               <button className="btn btn-xs btn-ghost text-indigo-600">Lihat Semua</button>
             </div>
-            
-            {/* Kirim data transaksi ke tabel */}
+
             <TransactionList transactions={Array.isArray(transactions) ? transactions : []} />
           </div>
 

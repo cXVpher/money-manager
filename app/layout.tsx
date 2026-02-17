@@ -15,7 +15,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // PERUBAHAN ADA DI SINI: Tambahkan data-theme="emerald"
     <html lang="en" data-theme="emerald">
       <body className={inter.className}>{children}</body>
     </html>

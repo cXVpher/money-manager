@@ -3,6 +3,6 @@
 @tailwind utilities;
 
 body {
-  background-color: #f3f4f6; /* Warna abu-abu muda lembut */
-  color: #1f2937; /* Warna teks gelap */
+  background-color: #f3f4f6;
+  color: #1f2937;
 }

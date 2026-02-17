@@ -10,25 +10,21 @@ export default function AddTransaction() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // State Form
   const [type, setType] = useState("expense");
   const [categoryId, setCategoryId] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
 
-  // Load Kategori saat modal dibuka
   useEffect(() => {
     if (isOpen) {
       getCategories().then((data) => {
         setCategories(Array.isArray(data) ? data : []);
-        // Set tanggal default hari ini (YYYY-MM-DD)
         setDate(new Date().toISOString().split('T')[0]);
       });
     }
   }, [isOpen]);
 
-  // Filter kategori berdasarkan tipe (Income/Expense)
   const filteredCategories = categories.filter(c => c.type === type);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,9 +35,9 @@ export default function AddTransaction() {
       await createTransaction({
         type,
         categoryId,
-        amount: Number(amount), // Pastikan Number
+        amount: Number(amount),
         description,
-        transactionDate: date // Format YYYY-MM-DD
+        transactionDate: date
       });
 
       setIsOpen(false);
@@ -71,7 +67,6 @@ export default function AddTransaction() {
             <h3 className="font-bold text-xl mb-6 text-center border-b pb-2">Catat Transaksi Baru</h3>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               
-              {/* PERBAIKAN TOMBOL PILIHAN */}
               <div className="grid grid-cols-2 gap-4 p-1 bg-gray-100 rounded-lg">
                 <button type="button" 
                   className={`btn border-0 ${type === 'income' ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-transparent text-gray-500 hover:bg-gray-200'}`}
@@ -87,7 +82,6 @@ export default function AddTransaction() {
                 </button>
               </div>
 
-              {/* DROPDOWN KATEGORI */}
               <div className="form-control">
                 <select 
                   className="select select-bordered w-full text-base"
@@ -100,15 +94,12 @@ export default function AddTransaction() {
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
-                {/* Pesan Error jika kosong */}
                 {filteredCategories.length === 0 && (
                   <div className="alert alert-warning mt-2 text-xs py-2">
                     <span>⚠️ Belum ada kategori <b>{type}</b>. Silakan buat di menu "Daftar Kategori" diatas.</span>
                   </div>
                 )}
               </div>
-
-              {/* ... (Input tanggal, nominal, deskripsi - biarkan sama seperti sebelumnya) ... */}
               
               <input type="date" className="input input-bordered" value={date} onChange={(e) => setDate(e.target.value)} required />
               <input type="number" placeholder="Nominal (Rp)" className="input input-bordered" value={amount} onChange={(e) => setAmount(e.target.value)} required />
