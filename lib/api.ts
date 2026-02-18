@@ -1,78 +1,91 @@
-import axios from "axios";
+import { 
+  Transaction, 
+  Category, 
+  DashboardSummary, 
+  CreateTransactionDto, 
+  CreateCategoryDto 
+} from "@/types";
 
 const BASE_URL = "https://task-tracker-api.zeabur.app/api/v1";
 
-export interface Category {
-  id: string;
-  name: string;
-  type: "income" | "expense";
-  color: string;
+async function fetcher<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    let errorMessage = "Terjadi kesalahan";
+    try {
+      const errorData = await res.json();
+      errorMessage = errorData.message || JSON.stringify(errorData);
+    } catch {
+      errorMessage = `Error ${res.status}: ${res.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+
+  if (res.status === 204) return null as T;
+
+  return res.json();
 }
 
-export interface Transaction {
-  id: string;
-  type: "income" | "expense";
-  categoryId: string;
-  category?: Category;
-  amount: number;
-  description: string;
-  transactionDate: string;
-}
-
-export interface DashboardSummary {
-  totalIncome: number;
-  totalExpense: number;
-  balance: number;
-}
-
-const extractData = (response: any) => {
-  const body = response.data;
-  if (Array.isArray(body)) return body;
-  if (body && Array.isArray(body.data)) return body.data;
-  return [];
-};
-
-
-export const getCategories = async () => {
+export const getCategories = async (): Promise<Category[]> => {
   try {
-    const res = await axios.get(`${BASE_URL}/categories`);
-    console.log("Cek Data Kategori:", res.data); // Kita intip di console
-    return extractData(res);
+    const data = await fetcher<any>(`${BASE_URL}/categories`, { cache: "no-store" });
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
   } catch (error) {
     console.error("Gagal ambil kategori:", error);
     return [];
   }
 };
 
-export const createCategory = async (name: string, type: string, color: string) => {
-  return await axios.post(`${BASE_URL}/categories`, { name, type, color });
+export const createCategory = async (payload: CreateCategoryDto) => {
+  return await fetcher(`${BASE_URL}/categories`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 };
 
 export const deleteCategory = async (id: string) => {
-  await axios.delete(`${BASE_URL}/categories/${id}`);
+  return await fetcher(`${BASE_URL}/categories/${id}`, {
+    method: "DELETE",
+  });
 };
 
-export const getTransactions = async () => {
+export const getTransactions = async (): Promise<Transaction[]> => {
   try {
-    const res = await axios.get(`${BASE_URL}/transactions`);
-    return extractData(res);
+    const data = await fetcher<any>(`${BASE_URL}/transactions`, { cache: "no-store" });
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    return [];
   } catch (error) {
     return [];
   }
 };
 
-export const createTransaction = async (payload: any) => {
-  return await axios.post(`${BASE_URL}/transactions`, payload);
+export const createTransaction = async (payload: CreateTransactionDto) => {
+  return await fetcher(`${BASE_URL}/transactions`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 };
 
 export const deleteTransaction = async (id: string) => {
-  await axios.delete(`${BASE_URL}/transactions/${id}`);
+  return await fetcher(`${BASE_URL}/transactions/${id}`, {
+    method: "DELETE",
+  });
 };
 
-export const getDashboardSummary = async () => {
+export const getDashboardSummary = async (): Promise<DashboardSummary> => {
   try {
-    const res = await axios.get(`${BASE_URL}/dashboard/summary`);
-    return res.data || { totalIncome: 0, totalExpense: 0, balance: 0 };
+    const data = await fetcher<any>(`${BASE_URL}/dashboard/summary`, { cache: "no-store" });
+    return data || { totalIncome: 0, totalExpense: 0, balance: 0 };
   } catch (error) {
     return { totalIncome: 0, totalExpense: 0, balance: 0 };
   }
