@@ -30,7 +30,18 @@ export default async function Home() {
   summary.balance = summary.totalIncome - summary.totalExpense;
 
   const recentTransactions = Array.isArray(transactions) 
-    ? [...transactions].reverse().slice(0, 5) 
+    ? transactions
+    .sort((a: any, b: any) => {
+           const timeA = a.createdAt || a.created_at || "";
+           const timeB = b.createdAt || b.created_at || "";
+           
+           if (timeA && timeB) {
+             return new Date(timeB).getTime() - new Date(timeA).getTime();
+           }
+           
+           return b.id.localeCompare(a.id);
+        })
+        .slice(0, 5)
     : [];
 
   return (
@@ -86,7 +97,7 @@ export default async function Home() {
                 href="/transactions" 
                 className="btn btn-xs btn-ghost text-indigo-600 hover:bg-indigo-50"
               >
-                Lihat Semua ({transactions.length}) 👉
+                Lihat Semua ({transactions.length}) 
               </Link>
             </div>
             
